@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BioPipe Lite - Tasks</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f8f9fa; }
+        .status-pending { color: #ffc107; }
+        .status-running { color: #17a2b8; }
+        .status-completed { color: #28a745; }
+        .status-failed { color: #dc3545; }
+        .btn { padding: 6px 12px; text-decoration: none; border-radius: 4px; }
+        .btn-primary { background: #007bff; color: white; }
+    </style>
+</head>
+<body>
+    <h1>📋 Analysis Tasks</h1>
+    <p><a href="{{ url_for('index') }}">← New Analysis</a></p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.id }}</td>
+                <td>{{ task.task_name }}</td>
+                <td>{{ task.analysis_type }}</td>
+                <td class="status-{{ task.status }}">{{ task.status }}</td>
+                <td>{{ task.created_at }}</td>
+                <td>
+                    {% if task.status == 'completed' %}
+                        <a href="{{ url_for('show_result', task_id=task.id) }}" class="btn btn-primary">View Result</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

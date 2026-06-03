@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioPipe Lite - 上传分析</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        
+        .flash {
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .flash.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .flash.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .flash.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .upload-zone {
+            border: 2px dashed #c0c4cc;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .upload-zone:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .upload-zone input[type="file"] {
+            display: none;
+        }
+        
+        .upload-zone .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .upload-zone .text {
+            color: #606266;
+            font-size: 14px;
+        }
+        
+        .upload-zone .hint {
+            color: #909399;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        
+        .file-name {
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            color: #0969da;
+            font-size: 13px;
+            display: none;
+        }
+        
+        .file-name.show {
+            display: block;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dcdfe6;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .radio-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 16px;
+            border: 1px solid #e4e7ed;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .radio-item:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .radio-item input[type="radio"] {
+            margin-right: 12px;
+            margin-top: 2px;
+            accent-color: #667eea;
+        }
+        
+        .radio-item .info {
+            flex: 1;
+        }
+        
+        .radio-item .info .title {
+            font-weight: 600;
+            color: #303133;
+            font-size: 14px;
+        }
+        
+        .radio-item .info .desc {
+            color: #909399;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        .radio-item input[type="radio"]:checked + .info {
+            color: #667eea;
+        }
+        
+        .radio-item:has(input:checked) {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+        
+        .nav-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .nav-link a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .nav-link a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+        
+        .data-format {
+            margin-top: 24px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .data-format h4 {
+            font-size: 13px;
+            color: #606266;
+            margin-bottom: 10px;
+        }
+        
+        .data-format pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+        
+        .data-format .toggle {
+            color: #667eea;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        
+        .data-format .examples {
+            display: none;
+            margin-top: 12px;
+        }
+        
+        .data-format .examples.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧬 BioPipe Lite</h1>
+            <p>轻量级生物信息学分析平台</p>
+        </div>
+        
+        <div class="card">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" id="uploadForm">
+                <div class="form-group">
+                    <label>📁 上传数据文件</label>
+                    <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                        <input type="file" id="fileInput" name="file" accept=".csv,.tsv,.txt" required onchange="showFileName(this)">
+                        <div class="icon">📤</div>
+                        <div class="text">点击或拖拽上传表达矩阵</div>
+                        <div class="hint">支持 CSV / TSV 格式，最大 16MB</div>
+                    </div>
+                    <div class="file-name" id="fileName"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label>📝 任务名称</label>
+                    <input type="text" name="task_name" placeholder="例如：TCGA_BRCA_Differential" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>🔬 分析类型</label>
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" name="analysis_type" value="differential" checked>
+                            <div class="info">
+                                <div class="title">差异表达分析</div>
+                                <div class="desc">比较两组样本的基因表达差异，生成火山图和显著基因列表。输入需包含 group 列（control / treatment）</div>
+                            </div>
+                        </label>
+                        
+                        <label class="radio-item">
+                            <input type="radio" name="analysis_type" value="clustering">
+                            <div class="info">
+                                <div class="title">聚类分析</div>
+                                <div class="desc">对样本进行无监督聚类，生成PCA散点图、热图和聚类树状图。输入为样本×基因表达矩阵</div>
+                            </div>
+                        </label>
+                        
+                        <label class="radio-item">
+                            <input type="radio" name="analysis_type" value="survival">
+                            <div class="info">
+                                <div class="title">生存分析</div>
+                                <div class="desc">Kaplan-Meier生存曲线和Cox比例风险模型。输入需包含 time（生存时间）、event（事件指示，1=发生，0=删失）、group（分组）列</div>
+                            </div>
+                        </label>
+                        
+                        <label class="radio-item">
+                            <input type="radio" name="analysis_type" value="gene_survival">
+                            <div class="info">
+                                <div class="title">基因表达生存分析</div>
+                                <div class="desc">按单个基因表达水平分层（高/低表达），比较不同表达组的生存差异。任务名称请填写基因名，如：TP53</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-submit">🚀 开始分析</button>
+            </form>
+            
+            <div class="data-format">
+                <h4>📋 数据格式说明</h4>
+                <div class="toggle" onclick="toggleExamples()">点击查看各分析类型的输入格式示例 ▼</div>
+                <div class="examples" id="examples">
+                    <p style="font-size:12px;color:#666;margin:8px 0;"><strong>差异表达分析：</strong></p>
+                    <pre>sample,gene1,gene2,gene3,...,group
+S001,2.3,5.1,0.2,...,control
+S002,3.1,4.8,1.1,...,treatment</pre>
+                    
+                    <p style="font-size:12px;color:#666;margin:8px 0;"><strong>聚类分析：</strong></p>
+                    <pre>sample,gene1,gene2,gene3,...
+S001,2.3,5.1,0.2
+S002,3.1,4.8,1.1</pre>
+                    
+                    <p style="font-size:12px;color:#666;margin:8px 0;"><strong>生存分析：</strong></p>
+                    <pre>patient,time,event,group,gene1,gene2,...
+P001,365,1,high_risk,2.3,5.1
+P002,720,0,low_risk,3.1,4.8</pre>
+                </div>
+            </div>
+        </div>
+        
+        <div class="nav-link">
+            <a href="{{ url_for('list_tasks') }}">📋 查看所有任务 →</a>
+        </div>
+    </div>
+    
+    <script>
+        function showFileName(input) {
+            const nameDiv = document.getElementById('fileName');
+            if (input.files && input.files[0]) {
+                nameDiv.textContent = '已选择：' + input.files[0].name;
+                nameDiv.classList.add('show');
+            }
+        }
+        
+        function toggleExamples() {
+            const div = document.getElementById('examples');
+            div.classList.toggle('show');
+        }
+        
+        // 拖拽上传
+        const uploadZone = document.querySelector('.upload-zone');
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = '#667eea';
+            uploadZone.style.background = '#f8f9ff';
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.style.borderColor = '#c0c4cc';
+            uploadZone.style.background = 'transparent';
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = '#c0c4cc';
+            uploadZone.style.background = 'transparent';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('fileInput').files = files;
+                showFileName(document.getElementById('fileInput'));
+            }
+        });
+    </script>
+</body>
+</html>

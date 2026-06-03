@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioPipe Lite - 结果 #{{ task.id }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .nav-bar {
+            margin-bottom: 24px;
+        }
+        
+        .nav-bar a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .nav-bar a:hover {
+            text-decoration: underline;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .page-header h1 {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+        }
+        
+        .page-header .meta {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-running {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        
+        .card h2 {
+            font-size: 18px;
+            color: #303133;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .summary-item {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 10px;
+        }
+        
+        .summary-item .label {
+            font-size: 12px;
+            color: #909399;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .summary-item .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #303133;
+        }
+        
+        .summary-item .value.small {
+            font-size: 16px;
+        }
+        
+        .plot-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 10px;
+        }
+        
+        .plot-container img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .plot-container .plot-title {
+            font-size: 14px;
+            color: #606266;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+        
+        .plots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        th {
+            background: #f5f7fa;
+            color: #606266;
+            font-weight: 600;
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #e4e7ed;
+            white-space: nowrap;
+        }
+        
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ebeef5;
+            color: #303133;
+        }
+        
+        tr:hover td {
+            background: #f5f7fa;
+        }
+        
+        .num-cell {
+            font-family: 'SF Mono', Monaco, monospace;
+            text-align: right;
+        }
+        
+        .sig-yes {
+            color: #67c23a;
+            font-weight: 600;
+        }
+        
+        .sig-no {
+            color: #909399;
+        }
+        
+        .download-section {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f0f2f5;
+            color: #606266;
+        }
+        
+        .btn-secondary:hover {
+            background: #e4e7ed;
+        }
+        
+        .error-box {
+            background: #fef0f0;
+            border: 1px solid #fde2e2;
+            color: #f56c6c;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .error-box pre {
+            margin-top: 8px;
+            padding: 12px;
+            background: #2d2d2d;
+            color: #f8f8f2;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 11px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #909399;
+        }
+        
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .method-tag {
+            display: inline-block;
+            padding: 2px 10px;
+            background: #e6f7ff;
+            color: #0969da;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-bar">
+            <a href="{{ url_for('list_tasks') }}">← 返回任务列表</a>
+        </div>
+        
+        <div class="page-header">
+            <h1>
+                📊 {{ task.task_name }}
+                <span class="status-badge status-{{ task.status }}">{{ task.status }}</span>
+            </h1>
+            <div class="meta">
+                任务 #{{ task.id }} | {{ task.analysis_type }} | 
+                创建于 {{ task.created_at }} 
+                {% if task.completed_at %}| 完成于 {{ task.completed_at }}{% endif %}
+            </div>
+        </div>
+        
+        {% if task.status == 'failed' %}
+        <div class="card">
+            <h2>❌ 错误信息</h2>
+            <div class="error-box">
+                <p>分析过程中发生错误：</p>
+                <pre>{{ task.error_message or '未知错误' }}</pre>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if task.status == 'running' or task.status == 'pending' %}
+        <div class="card empty-state">
+            <div class="icon">⏳</div>
+            <p>分析正在进行中，请稍后刷新页面查看结果</p>
+            <p style="font-size:12px;color:#909399;margin-top:8px;">
+                当前状态：{{ task.status }} | 创建于 {{ task.created_at }}
+            </p>
+        </div>
+        {% endif %}
+        
+        {% if task.status == 'completed' and task.result_path %}
+        
+        <!-- 统计摘要 -->
+        <div class="card">
+            <h2>📈 分析摘要</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="label">分析类型</div>
+                    <div class="value small">
+                        <span class="method-tag">{{ task.analysis_type }}</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">总基因数 / 样本数</div>
+                    <div class="value small">{{ summary.total_genes or 'N/A' }} / {{ summary.total_samples or 'N/A' }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">显著基因数</div>
+                    <div class="value" style="color: #67c23a;">{{ summary.n_significant or 'N/A' }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">P值阈值</div>
+                    <div class="value small">{{ summary.pvalue_threshold or '0.05' }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 可视化结果 -->
+        {% if plots %}
+        <div class="card">
+            <h2>📉 可视化结果</h2>
+            <div class="plots-grid">
+                {% for plot_name, plot_url in plots.items() %}
+                <div class="plot-container">
+                    <img src="{{ plot_url }}" alt="{{ plot_name }}" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                    <div style="display:none;color:#909399;font-size:12px;">图片加载失败</div>
+                    <div class="plot-title">{{ plot_name }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- 数据表格 -->
+        {% if table_data %}
+        <div class="card">
+            <h2>📋 结果表格（前 {{ table_data|length }} 行）</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            {% for col in table_columns %}
+                            <th>{{ col }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in table_data %}
+                        <tr>
+                            {% for col in table_columns %}
+                            <td class="{% if col in numeric_columns %}num-cell{% endif %}">
+                                {% if col == 'significant' %}
+                                    {% if row[col] == True or row[col] == 'True' or row[col] == 1 %}
+                                        <span class="sig-yes">✓ Yes</span>
+                                    {% else %}
+                                        <span class="sig-no">✗ No</span>
+                                    {% endif %}
+                                {% elif col in numeric_columns %}
+                                    {% if row[col] is number %}
+                                        {% if row[col]|abs < 0.001 %}
+                                            {{ "%.2e"|format(row[col]) }}
+                                        {% else %}
+                                            {{ "%.4f"|format(row[col]) }}
+                                        {% endif %}
+                                    {% else %}
+                                        {{ row[col] }}
+                                    {% endif %}
+                                {% else %}
+                                    {{ row[col] }}
+                                {% endif %}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- 下载区域 -->
+        <div class="card">
+            <h2>💾 下载结果</h2>
+            <div class="download-section">
+                {% for file in download_files %}
+                <a href="{{ url_for('download_file', task_id=task.id, filename=file) }}" 
+                   class="btn btn-primary">
+                    📥 {{ file }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        
+        {% endif %}
+    </div>
+</body>
+</html>
