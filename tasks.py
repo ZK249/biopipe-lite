@@ -1,9 +1,13 @@
 """Background task execution."""
 
 import os
+import threading
 from analysis.differential import run_differential_analysis
 from analysis.clustering import run_clustering_analysis
 from analysis.survival import run_survival_analysis, run_gene_survival_analysis
+
+# Matplotlib is not thread-safe; serialize all analysis tasks
+_analysis_lock = threading.Lock()
 
 TASK_REGISTRY = {
     'differential': run_differential_analysis,
@@ -37,12 +41,13 @@ def execute_task(task_id: int, app) -> None:
             )
             
             # Pass extra params for gene_survival
-            if task.analysis_type == 'gene_survival':
-                # Extract gene name from task name or use default
-                gene_name = task.task_name.replace('GeneSurvival_', '') or 'TP53'
-                result = analysis_func(task.input_file, output_dir, gene_col=gene_name)
-            else:
-                result = analysis_func(task.input_file, output_dir)
+            with _analysis_lock:
+                if task.analysis_type == 'gene_survival':
+                    # Extract gene name from task name or use default
+                    gene_name = task.task_name.replace('GeneSurvival_', '') or 'TP53'
+                    result = analysis_func(task.input_file, output_dir, gene_col=gene_name)
+                else:
+                    result = analysis_func(task.input_file, output_dir)
             
             task.status = 'completed'
             task.result_path = output_dir

@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
+from analysis import read_dataframe
+
 def run_differential_analysis(
     input_path: str,
     output_dir: str,
@@ -28,7 +30,7 @@ def run_differential_analysis(
         Dictionary with result paths and summary statistics
     """
     # Load data
-    df = pd.read_csv(input_path, index_col=0)
+    df = read_dataframe(input_path)
     
     # Validate columns
     if group_col not in df.columns:

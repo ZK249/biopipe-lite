@@ -299,7 +299,7 @@
                         <input type="file" id="fileInput" name="file" accept=".csv,.tsv,.txt" required onchange="showFileName(this)">
                         <div class="icon">📤</div>
                         <div class="text">点击或拖拽上传表达矩阵</div>
-                        <div class="hint">支持 CSV / TSV 格式，最大 16MB</div>
+                        <div class="hint">支持 CSV / TSV / TXT 格式，最大 16MB</div>
                     </div>
                     <div class="file-name" id="fileName"></div>
                 </div>
@@ -353,20 +353,20 @@
                 <h4>📋 数据格式说明</h4>
                 <div class="toggle" onclick="toggleExamples()">点击查看各分析类型的输入格式示例 ▼</div>
                 <div class="examples" id="examples">
-                    <p style="font-size:12px;color:#666;margin:8px 0;"><strong>差异表达分析：</strong></p>
-                    <pre>sample,gene1,gene2,gene3,...,group
-S001,2.3,5.1,0.2,...,control
-S002,3.1,4.8,1.1,...,treatment</pre>
+                    <p style="font-size:12px;color:#666;margin:8px 0;"><strong>差异表达分析（CSV / TSV）：</strong></p>
+                    <pre>sample  gene1  gene2  gene3  ...  group
+S001    2.3    5.1    0.2    ...  control
+S002    3.1    4.8    1.1    ...  treatment</pre>
                     
-                    <p style="font-size:12px;color:#666;margin:8px 0;"><strong>聚类分析：</strong></p>
-                    <pre>sample,gene1,gene2,gene3,...
-S001,2.3,5.1,0.2
-S002,3.1,4.8,1.1</pre>
+                    <p style="font-size:12px;color:#666;margin:8px 0;"><strong>聚类分析（CSV / TSV）：</strong></p>
+                    <pre>sample  gene1  gene2  gene3  ...
+S001    2.3    5.1    0.2    ...
+S002    3.1    4.8    1.1    ...</pre>
                     
-                    <p style="font-size:12px;color:#666;margin:8px 0;"><strong>生存分析：</strong></p>
-                    <pre>patient,time,event,group,gene1,gene2,...
-P001,365,1,high_risk,2.3,5.1
-P002,720,0,low_risk,3.1,4.8</pre>
+                    <p style="font-size:12px;color:#666;margin:8px 0;"><strong>生存分析（CSV / TSV）：</strong></p>
+                    <pre>patient  time  event  group      gene1  gene2  ...
+P001     365   1      high_risk  2.3    5.1    ...
+P002     720   0      low_risk   3.1    4.8    ...</pre>
                 </div>
             </div>
         </div>

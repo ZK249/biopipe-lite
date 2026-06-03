@@ -1,0 +1,9 @@
+metric,value
+n_total,50
+n_events,37
+n_censored,13
+median_survival,230.6
+logrank_pvalue,0.013899286493057775
+cox_hr,0.43001386962298904
+cox_pvalue,0.01687664331448967
+cox_summary,E:\project\biopipe-lite\static\results\task_6\cox_summary.csv

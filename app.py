@@ -2,6 +2,9 @@
 
 import os
 import threading
+
+import pandas as pd
+import numpy as np
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from werkzeug.utils import secure_filename
 
@@ -76,6 +79,32 @@ def list_tasks():
     tasks = AnalysisTask.query.order_by(AnalysisTask.created_at.desc()).all()
     return render_template('tasks.html', tasks=tasks)
 
+
+@app.route('/tasks/<int:task_id>/delete', methods=['POST'])
+def delete_task(task_id: int):
+    """Delete a task and its associated files."""
+    task = AnalysisTask.query.get_or_404(task_id)
+
+    # Delete uploaded input file
+    if task.input_file and os.path.exists(task.input_file):
+        try:
+            os.remove(task.input_file)
+        except OSError:
+            pass
+
+    # Delete result directory and all plots/CSVs inside
+    if task.result_path and os.path.exists(task.result_path):
+        try:
+            import shutil
+            shutil.rmtree(task.result_path)
+        except OSError:
+            pass
+
+    db.session.delete(task)
+    db.session.commit()
+    flash(f'Task #{task_id} deleted', 'success')
+    return redirect(url_for('list_tasks'))
+
 @app.route('/result/<int:task_id>')
 def show_result(task_id: int):
     """Display analysis results with structured data for template."""
@@ -109,7 +138,7 @@ def show_result(task_id: int):
                 download_files.append(f)
             elif f.endswith('.png'):
                 # Create URL for static file
-                rel_path = os.path.relpath(fpath, os.path.join(app.root_path, 'static'))
+                rel_path = os.path.relpath(fpath, os.path.join(app.root_path, 'static')).replace('\\', '/')
                 plot_name = f.replace('_', ' ').replace('.png', '').title()
                 plots[plot_name] = url_for('static', filename=rel_path)
         

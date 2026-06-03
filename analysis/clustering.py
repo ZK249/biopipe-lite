@@ -13,6 +13,8 @@ from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from scipy.spatial.distance import pdist
 import os
 
+from analysis import read_dataframe
+
 
 def run_clustering_analysis(
     input_path: str,
@@ -33,7 +35,7 @@ def run_clustering_analysis(
         Dictionary with result paths and summary
     """
     # Load data
-    df = pd.read_csv(input_path, index_col=0)
+    df = read_dataframe(input_path)
     
     # Assume rows are genes, columns are samples
     # Transpose so rows are samples for clustering
@@ -158,7 +160,7 @@ def _plot_heatmap(expr_numeric, labels, output_path):
     )
     
     g.savefig(output_path, dpi=150)
-    plt.close()
+    plt.close('all')
 
 
 def _plot_dendrogram(expr_scaled, labels, output_path):

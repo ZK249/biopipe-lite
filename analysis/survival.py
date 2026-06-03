@@ -12,6 +12,8 @@ from sklearn.linear_model import LogisticRegression
 from lifelines import KaplanMeierFitter, CoxPHFitter
 from lifelines.statistics import logrank_test
 
+from analysis import read_dataframe
+
 
 def run_survival_analysis(
     input_path: str,
@@ -34,7 +36,7 @@ def run_survival_analysis(
         Dictionary with result paths and statistics
     """
     # Load data
-    df = pd.read_csv(input_path, index_col=0)
+    df = read_dataframe(input_path)
     
     # Validate required columns
     for col in [time_col, event_col]:
@@ -166,12 +168,13 @@ def run_survival_analysis(
 
 def _plot_km_curve(kmfitters, labels, output_path, title):
     """Plot Kaplan-Meier survival curves."""
-    plt.figure(figsize=(10, 7))
+    fig, ax = plt.subplots(figsize=(10, 7))
     
     colors = plt.cm.tab10(np.linspace(0, 1, len(kmfitters)))
     
     for kmf, label, color in zip(kmfitters, labels, colors):
         kmf.plot_survival_function(
+            ax=ax,
             color=color,
             linewidth=2,
             label=label,
@@ -179,15 +182,16 @@ def _plot_km_curve(kmfitters, labels, output_path, title):
             ci_alpha=0.2
         )
     
-    plt.xlabel('Time', fontsize=12)
-    plt.ylabel('Survival Probability', fontsize=12)
-    plt.title(title, fontsize=14)
-    plt.legend(loc='lower left', fontsize=10)
-    plt.ylim(0, 1.05)
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
-    plt.close()
+    ax.set_xlabel('Time', fontsize=12)
+    ax.set_ylabel('Survival Probability', fontsize=12)
+    ax.set_title(title, fontsize=14)
+    if len(kmfitters) > 1:
+        ax.legend(loc='lower left', fontsize=10)
+    ax.set_ylim(0, 1.05)
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=150)
+    plt.close(fig)
 
 
 def run_gene_survival_analysis(
@@ -212,7 +216,7 @@ def run_gene_survival_analysis(
     Returns:
         Dictionary with results
     """
-    df = pd.read_csv(input_path, index_col=0)
+    df = read_dataframe(input_path)
     
     if gene_col not in df.columns:
         raise ValueError(f"Gene column '{gene_col}' not found")
